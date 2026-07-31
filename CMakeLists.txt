@@ -32,7 +32,18 @@ if(NOT TARGET odbg_plugin_sdk)
     include(OdbgPlugin)
 endif()
 
-# (spelled out rather than PROJECT_IS_TOP_LEVEL so 3.20 stays enough)
+# Configured on its own, this repo builds its sample plugin. Pulled in as a
+# subproject it does not - a plugin repo consuming the SDK wants the SDK, not
+# our demo. open-debugger itself turns it back on, since there the sample is
+# just another plugin to load. (Top-level test spelled out rather than using
+# PROJECT_IS_TOP_LEVEL so 3.20 stays enough.)
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+    set(_odbg_sample_default ON)
+else()
+    set(_odbg_sample_default OFF)
+endif()
+option(ODBG_SDK_BUILD_SAMPLE "Build odbg-sample_plugin" ${_odbg_sample_default})
+
+if(ODBG_SDK_BUILD_SAMPLE AND NOT TARGET odbg-sample_plugin)
     add_odbg_plugin(odbg-sample_plugin)
 endif()
