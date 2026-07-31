@@ -29,15 +29,28 @@ endif()
 
 function(add_odbg_plugin name)
     add_library(${name} SHARED plugins/${name}/${name}.cpp)
-    target_link_libraries(${name} PRIVATE
-        odbg::plugin_sdk
-        "${ODBG_BUILD_DIR}/$<CONFIG>/odbg.lib")
+    target_link_libraries(${name} PRIVATE odbg::plugin_sdk)
+
+    if(TARGET odbg)
+        # Being configured from inside the host's own build (open-debugger
+        # carries the plugin repos as submodules). Link the target itself, so
+        # CMake orders the build and follows the exe wherever it lands.
+        target_link_libraries(${name} PRIVATE odbg)
+        set(out_dir "$<TARGET_FILE_DIR:odbg>/plugins")
+    else()
+        # Standalone plugin repo: the host is a separate, already-built tree,
+        # so link its import library by path the way any out-of-tree plugin
+        # would and drop the DLL into the plugins folder it scans.
+        target_link_libraries(${name} PRIVATE "${ODBG_BUILD_DIR}/$<CONFIG>/odbg.lib")
+        set(out_dir "${ODBG_BUILD_DIR}/$<CONFIG>/plugins")
+    endif()
+
     if(MSVC)
         target_compile_options(${name} PRIVATE /W3 /EHsc)
     endif()
     # A generator expression in the output directory suppresses the per-config
     # subfolder MSBuild would otherwise append, so the DLL lands exactly here.
     set_target_properties(${name} PROPERTIES
-        RUNTIME_OUTPUT_DIRECTORY "${ODBG_BUILD_DIR}/$<CONFIG>/plugins"
-        LIBRARY_OUTPUT_DIRECTORY "${ODBG_BUILD_DIR}/$<CONFIG>/plugins")
+        RUNTIME_OUTPUT_DIRECTORY "${out_dir}"
+        LIBRARY_OUTPUT_DIRECTORY "${out_dir}")
 endfunction()

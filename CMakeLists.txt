@@ -20,12 +20,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 #   odbg::plugin_sdk interface library and add_odbg_plugin(), and deliberately
 #   does NOT build the sample plugin - a consumer wants the SDK, not our demo.
 
-add_library(odbg_plugin_sdk INTERFACE)
-add_library(odbg::plugin_sdk ALIAS odbg_plugin_sdk)
-target_include_directories(odbg_plugin_sdk INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/plugin_sdk")
+# Guarded because a build can reach this file more than once: open-debugger
+# carries both this SDK and the plugin repos as submodules, and each plugin
+# repo carries the SDK too. First one in wins; the rest are no-ops.
+if(NOT TARGET odbg_plugin_sdk)
+    add_library(odbg_plugin_sdk INTERFACE)
+    add_library(odbg::plugin_sdk ALIAS odbg_plugin_sdk)
+    target_include_directories(odbg_plugin_sdk INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/plugin_sdk")
 
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(OdbgPlugin)
+    list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+    include(OdbgPlugin)
+endif()
 
 # (spelled out rather than PROJECT_IS_TOP_LEVEL so 3.20 stays enough)
 if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)

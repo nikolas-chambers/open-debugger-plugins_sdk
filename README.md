@@ -25,7 +25,10 @@ add_odbg_plugin(my-plugin)                             # builds plugins/my-plugi
 
 `add_odbg_plugin()` needs to find the host's build tree for `odbg.lib`; it
 defaults to `${CMAKE_SOURCE_DIR}/../open-debugger/build`, override with
-`-DODBG_ROOT=...` or `-DODBG_BUILD_DIR=...`.
+`-DODBG_ROOT=...` or `-DODBG_BUILD_DIR=...`. (When the whole thing is
+configured from inside open-debugger - which carries the plugin repos as
+submodules - there is no path to point at: the plugin links the `odbg` target
+directly and CMake orders the build itself.)
 
 Build open-debugger first, for the same architecture - a plugin DLL is loaded
 into `odbg.exe`'s own process.
