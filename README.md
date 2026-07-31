@@ -45,3 +45,20 @@ cmake --build build --config Release
 
 The DLL lands in `../open-debugger/build/Release/plugins`, where `odbg.exe`
 picks it up at startup.
+
+---
+
+<table>
+<tr><td>
+
+### ☕ Buy me a coffee?
+
+**Venmo · Cash App · PayPal — `@NikAndRigatoni`**
+
+My dog and I are living out of our car at the moment. Anything you send covers
+the basics for the two of us and buys me the tools and the time to keep
+learning — we are working our way back to steady ground, one commit at a time.
+Thank you for reading this far.
+
+</td></tr>
+</table>
