@@ -142,3 +142,12 @@ typedef int  (*Odbg_PluginmenuFn)(int origin, char items[][32], int maxItems);
 typedef void (*Odbg_PluginactionFn)(int origin, int action);
 typedef void (*Odbg_PausedFn)(int reason, const OdbgRegs* regs);
 typedef void (*Odbg_PlugincloseFn)(void);
+
+// Optional: handle a command typed in the command bar / sent over the pipe that
+// the host itself did not recognize. The host tries each plugin's
+// Odbg_Plugincommand in load order until one claims it. Return 1 if this plugin
+// handled `cmdline` (and wrote its reply into `out`, a buffer of `outSize`
+// bytes), or 0 to let the host try the next plugin. This is how a plugin adds
+// its own verbs - e.g. odbg-python's "py <code>" runs Python from the command
+// bar and the pipe, so external scripts can drive plugin functionality too.
+typedef int  (*Odbg_PlugincommandFn)(const char* cmdline, char* out, int outSize);
