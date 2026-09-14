@@ -31,6 +31,7 @@ enum {
     kMenuGo,              // resume
     kMenuBreakMain,       // add a breakpoint by module!symbol
     kMenuToggleChatty,    // demonstrate a persisted plugin setting
+    kMenuRunCommand,      // drive the whole verb surface via Odbg_Command
     kMenuCount
 };
 
@@ -60,6 +61,7 @@ extern "C" __declspec(dllexport) int Odbg_Plugininit(int hostVersion) {
     Odbg_RegisterCommand("sample: Go",         "Resume the target (Odbg_Go)");
     Odbg_RegisterCommand("sample: BP ntdll!NtTerminateProcess", "Add a breakpoint (Odbg_Addbreakpoint)");
     Odbg_RegisterCommand("sample: Toggle chatty", "Persisted setting (Odbg_Setsetting/Getsetting)");
+    Odbg_RegisterCommand("sample: Run verb", "Drive any command-bar verb from a plugin (Odbg_Command)");
 
     // Load our persisted setting. An unset key reads back as an empty string,
     // which is how we spot a first run and keep our own default.
@@ -79,6 +81,7 @@ extern "C" __declspec(dllexport) int Odbg_Pluginmenu(int /*origin*/, char items[
     if (n < maxItems) strcpy_s(items[n++], 32, "Go");
     if (n < maxItems) strcpy_s(items[n++], 32, "BP NtTerminateProcess");
     if (n < maxItems) strcpy_s(items[n++], 32, "Toggle chatty (persisted)");
+    if (n < maxItems) strcpy_s(items[n++], 32, "Run verb (Odbg_Command)");
     return n;
 }
 
@@ -156,6 +159,18 @@ extern "C" __declspec(dllexport) void Odbg_Pluginaction(int /*origin*/, int acti
         Odbg_Setsetting("chatty", g_chatty ? "1" : "0");
         Odbg_Log(g_chatty ? "[sample] chatty on (remembered)" : "[sample] chatty off (remembered)");
         break;
+    case kMenuRunCommand: {
+        // Odbg_Command runs any command-bar / pipe verb and hands back the same
+        // text result the pipe would - the whole debugger, not just the typed
+        // exports above. Here we evaluate an expression; it could equally be
+        // "ht on", "bp kernel32!CreateFileW", "launch c:\\path\\app.exe", etc.
+        char result[256] = "";
+        int len = Odbg_Command("eval rip+10", result, sizeof(result));
+        char buf[320];
+        sprintf_s(buf, "[sample] Odbg_Command(\"eval rip+10\") -> \"%s\" (len=%d)", result, len);
+        Odbg_Log(buf);
+        break;
+    }
     default:
         break;
     }

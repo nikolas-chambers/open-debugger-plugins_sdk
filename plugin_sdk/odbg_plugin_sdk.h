@@ -84,11 +84,28 @@ ODBG_API bool  Odbg_Removebreakpoint(int id);
 
 ODBG_API unsigned long long Odbg_Getpeb();
 
-// Go/pause/step - same verbs as the command bar's g/pause/t/p.
+// Go/pause/step - same verbs as the command bar's g/pause/si/so.
 ODBG_API void  Odbg_Go();
 ODBG_API void  Odbg_Pause();
 ODBG_API void  Odbg_Stepinto();
 ODBG_API void  Odbg_Stepover();
+
+// Run ANY command-bar / pipe verb and get its text result. This is the whole
+// debugger control surface in one call: the exact same dispatcher the GUI
+// command bar and the named pipe use (see CONTROL.md for the verb list), so a
+// plugin can drive everything the user can - launch/attach, breakpoints,
+// stepping, hit trace, register/memory edits, expression eval, view control -
+// and it automatically gains any verb added later, with no SDK change.
+//
+// `cmdline` is one command line, e.g. "bp kernel32!CreateFileW", "eval rip+10",
+// "ht on", "reg rbx 0". `out` receives the result text (the same string the
+// pipe would return); pass NULL to run fire-and-forget. Returns the full result
+// length (which may exceed outSize-1, indicating truncation), or -1 on error.
+//
+// Safe from any thread, including from inside Odbg_Paused: if called on the
+// engine's worker thread it dispatches inline, otherwise it marshals and blocks
+// for the result - a plugin author never needs to think about which thread.
+ODBG_API int   Odbg_Command(const char* cmdline, char* out, int outSize);
 
 // Appends a line to the GUI's Log pane, prefixed with the plugin's name.
 ODBG_API void  Odbg_Log(const char* text);
