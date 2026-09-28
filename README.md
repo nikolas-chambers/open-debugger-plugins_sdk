@@ -48,6 +48,15 @@ picks it up at startup.
 
 ---
 
+### 💼 For hire
+
+I like working with cutting-edge technology and turning it into something
+useful for the community, not just another demo. If you need an agent, a CLI, a
+developer tool or something else built on new ground,
+[email me](mailto:nikolasjonchambers@gmail.com) — I'm open to freelance work.
+
+---
+
 <table>
 <tr><td>
 
